@@ -1,0 +1,296 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <!-- styles-->
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+    <link href="/css/style.css" rel="stylesheet">
+    <!-- scripts-->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script src="/js/init-topbar.js"></script>
+    <!-- Loading Sidebar Topbar and footer -->
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load("/views/layout/sidebar.html");
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load("/views/layout/footer.html");
+        });
+    </script>
+    <script src="/js/libs/polyfill/polyfill.min.js"></script>
+
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script src="/js/libs/dx-quill/dx-quill.min.js"></script>
+    <script type="text/javascript" src="/js/libs/dx/dx.all.js"></script>
+    <script src="/views/detail-pages/cso-detail-page/cso-detail-js.js"></script>
+    <script src="/Database/data.js"></script>
+
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <div class="mb-2" id="longtabs">
+                    <div class="tabs-container"></div>
+                </div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <div id="container-analysis-management" style="display: block">
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="cso-number m-0 font-weight-bold text-primary"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <!-- Card -->
+                                    <div id="cso-header"></div>
+                                </div>
+
+                            </div>
+
+                            <div id="complaints-info" class="card border-bottom-primary shadow mb-2" style="display: none">
+                                <div class="card-body">
+                                    <div id="com_info_header" class="row">
+                                        <div id="com1_info_header"></div>
+                                        <div id="com2_info_header"></div>
+                                        <div id="com3_info_header"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <!-- Card -->
+                                    <div id="form"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="card-body">
+                                            <div class="text-s font-weight-bold">
+                                                <h5 style="color: #6022A6; font-weight: bold">CSO Issue Description (Full)</h5>
+                                            </div>
+                                            <div id="IssueDescriptionFull" class="mb-2"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="card-body">
+                                            <div class="text-s font-weight-bold">
+                                                <h5 style="color: #6022A6; font-weight: bold">CSO Issue Summary</h5>
+                                             </div>
+                                            <div id="IssueSummary" class="mb-2"></div>
+                                            <div id="saveButtonissue"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-bottom-primary shadow mb-2" id="add-history-div">
+                                <div class="card-body">
+                                    <div class="text-s font-weight-bold">
+                                        <h5>Add History</h5>
+                                    </div>
+                                    <div id="add-history" class="mb-2"></div>
+                                    <div class="mb-2">
+                                        <div id="internal"></div>
+                                        <div id="external"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card -->
+                            <div class="card border-bottom-primary shadow mb-4">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="text-s font-weight-bold", id=internalhistory>
+                                                <h5>Internal History</h5>
+                                            </div>
+                                            <div id="internal-history" class="mb-2"></div>
+                                            <div id="internaledit" class="mb-4"></div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div class="text-s font-weight-bold">
+                                                <h5>External History</h5>
+                                            </div>
+                                            <div id="external-history" class="mb-2"></div>
+                                            <div id="externaledit" class="mb-4"></div>
+                                        </div>
+                                    </div>
+                                    <!-- <div class="row">
+                                            <div class="col">
+                                                <div class="text-s font-weight-bold">
+                                                    <h5>Associated Complaint History</h5>
+                                                </div>
+                                                <div id="com-associated-history"></div>
+                                            </div>
+                                        </div> -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="container-closure-information" style="display: none">
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="cso-number m-0 font-weight-bold text-primary"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <!-- Card -->
+                                    <div id="closure-header"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="col">
+                                        <!-- Card -->
+                                        <div id="form-demo">
+                                            <div id="closure-text-areas"></div>
+                                            <div id="closurerow" class="row">
+                                                <div id="saveButton"></div>
+                                                <div id="closureButton"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="container-other-information" style="display: none">
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="cso-number m-0 font-weight-bold text-primary"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="row row-5 card-body">
+                                    <!-- Card -->
+                                    <div id="other-information-header"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <!-- Card -->
+                                    <div id="form-demo">
+                                        <div id="other-information-text-areas"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="container-com-cso-association" style="display: none">
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="cso-number m-0 font-weight-bold text-primary"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="row row-5 card-body">
+                                    <!-- Card -->
+                                    <div id="form-demo">
+                                        <div id="com-cso-association-header"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <!-- Card -->
+                                    <div class="demo-container">
+                                        <div id="CSO_Associated_With"></div>
+                                        <div id="By-system-ID"></div>
+                                        <div id="By_SRN"></div>
+                                        <div id="By_COM"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="container-com-information" style="display: none">
+                        <div class="col-xl col-lg-7">
+                            <div id="No_Complaint_Associated" style="display: none;margin: 100px;">
+                                <h3>No Complaint Associated</h3>
+                            </div>
+                            <div class="row com-information">
+
+                                <div id="flex-items1" class="flex-items" style="display: none">
+                                    <div class="card  border-left-primary shadow mb-1">
+                                        <div class="card-body">
+
+                                            <div id="com-info-header1" class="mb-4"></div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="flex-items2" class="flex-items" style="display: none">
+                                    <div class="card border-left-primary shadow mb-1">
+                                        <div class="card-body">
+                                            <div id="com-info-header2" class="mb-4"></div>
+
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="flex-items3" class="flex-items" style="display: none">
+                                    <div class="card  border-left-primary shadow mb-1">
+                                        <div class="card-body">
+
+                                            <div id="com-info-header3" class="mb-4"></div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.container-fluid -->
+
+            <!-- End of Main Content -->
+            <!-- Footer -->
+
+            <footer id="footer"></footer>
+        </div>
+    
+        
+    <!-- Adding CSO Number to internal history -->
+    <script>
+        let httpAdress = window.location.search;
+        let csoNumber = httpAdress.substring(httpAdress.lastIndexOf("=") +1);
+        document.getElementById("internalhistory").innerHTML = '<h5 style="display:inline">Internal History - </h5> <h7 style="color:#4e73f2">'+csoNumber+'</h7>';
+    </script>
+
+        <!-- End of Content Wrapper -->
+
+        <!-- End of Page Wrapper -->
+</body>
+
+</html>

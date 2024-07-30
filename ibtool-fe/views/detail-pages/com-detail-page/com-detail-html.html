@@ -1,0 +1,345 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <!-- styles-->
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+    <link href="/css/style.css" rel="stylesheet">
+
+    <!-- scripts-->
+    <!-- Loading Sidebar Topbar and footer -->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script src="/js/init-topbar.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load("/views/layout/sidebar.html");
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load("/views/layout/footer.html");
+        });
+    </script>
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script src="/js/libs/dx-quill/dx-quill.min.js"></script>
+    <script src="/js/libs/dx/dx.all.js"></script>
+    <script src="/js/init-topbar.js"></script>
+    <script src="com-detail-js.js"></script>
+    <script src="/Database/data.js"></script>
+    <style>
+      table {
+          width: 100%;
+          height: 40%;
+      }
+      th:first-child, td:first-child {
+          width: 20%;
+      }
+      th:last-child, td:last-child {
+          width: 80%;
+      }
+      .btn-container {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 10px; /* Add some space below the button */
+        }
+  </style>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <!-- Top Navbar -->
+                <div class="mb-2" id="longtabs">
+                    <div class="tabs-container"></div>
+                </div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- container-analysis-management -->
+                    <div id="container-analysis-management" style="display: block">
+                        <div class="col-xl col-lg-7">
+                            <!-- Card container-analysis-management/header-->
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div id="com-header"></div>
+                                </div>
+                            </div>
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div id="analysis-textboxes"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xl col-lg-7">
+                            <!-- Card container-analysis-management/select boxes and histories-->
+                            <!-- Card Body -->
+                            <!-- Left Card Histories-->
+                            <div class="card border-bottom-primary shadow mb-2">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <div class="card-body">
+                                            <div class="text-s font-weight-bold">
+                                                <h5 style="color: #6022A6; font-weight: bold">COM Issue Description (Full)</h5>
+                                            </div>
+                                            <div id="IssueDescriptionFull" class="mb-2"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="card-body">
+                                            <div class="text-s font-weight-bold">
+                                                <h5 style="color: #6022A6; font-weight: bold">COM Issue Summary</h5>
+                                             </div>
+                                            <div id="IssueSummary" class="mb-2"></div>
+                                            <div id="saveButtonissue"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card border-bottom-primary shadow mb-2" id="add-history-div">
+                                <div class="card-body">
+                                    <div class="form-container">
+                                        <!-- right Card Html editor-->
+                                        <div class="text-s font-weight-bold">
+                                            <h5>Add History</h5>
+                                        </div>
+                                        <div id="add-history" class="mb-2"></div>
+                                        <div class="mb-4">
+                                            <div id="internal"></div>
+                                            <div id="external"></div>
+                                        </div>
+                                    </div>
+                                    <!-- right Card select boxes-->
+                                </div>
+                            </div>
+                            <div class="card border-bottom-primary shadow">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="text-s font-weight-bold", id="internalhistory">
+                                                <h5>Internal History</h5>
+                                            </div>
+                                            <div id="internal-history" class="mb-4"></div>
+                                            <div id="internaledit" class="mb-4"></div>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <div id="Associated_CSO_History" class="text-s font-weight-bold" style="display: none;">
+                                                <h5>Associated CSO History</h5>
+                                            </div>
+                                            <div id="cso-associated-history"></div>
+                                            <!-- right Card Html editor and select boxes-->
+                                            <div class="text-s font-weight-bold">
+                                                <h5>External History</h5>
+                                            </div>
+                                            <div id="external-history" class="mb-4"></div>
+                                            <div id="externaledit" class="mb-4"></div>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    
+                </div>
+
+                <!-- End of container-analysis-management -->
+                <!-- container-closure-information -->
+                <div id="container-closure-information" style="display: none">
+                    <div class="col-xl col-lg-7">
+                        <!-- Card container-closure-information header-->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div id="closure-header"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card container-closure-information text boxes-->
+                    <div class="col-xl col-lg-7">
+                        <!-- Card -->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class="card-body">
+                                <div class="col">
+                                    <div class="alert alert-warning" role="alert">Please Make sure before click on "Close Complaint" button click on Save button. The reason of closure field is required. Reminder: select Application/feature before closing the complaint.
+                                    </div>
+                                    <div id="closure-text-areas"></div>
+                                    <div id="closurerow" class="row">
+                                        <div id="saveButton"></div>
+                                        <div id="closureButton"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Card body-->
+                        </div>
+                    </div>
+                </div>
+                <!--  end of container-closure-information -->
+                <!--   container-Safety-Regulatory -->
+                <div id="container-Safety-Regulatory" style="display: none">
+                    <div class="col-xl col-lg-7">
+                        <!-- Card container-Safety-Regulatory header -->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                            </div>
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <div id="safety-header"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Card container-Safety-Regulatory hazardous -->
+                    <div class="col-xl col-lg-7">
+                        <!-- Card -->
+                        <div class="card border-bottom-primary shadow mb-4">
+                            <!-- Card Body -->
+                            <div class="card-body mb-2">
+                                <div class="col">
+                                    <div id="safety-select"></div>
+                                    <div class="row" id="safetybutton">
+                                        <div id="hazardsaveButton"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--  end of container-Safety-Regulatory -->
+                <!-- container-other-information -->
+                <div id="container-other-information" style="display: none">
+                    <div class="col-xl col-lg-7">
+                        <!-- Card container-other-information header  -->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="other-header"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl col-lg-7">
+                        <!-- Card container-other-information text areas  -->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class="card-body">
+                                <div class="col">
+                                    <div class="form-container">
+                                        <div id="other-text-areas"></div>
+                                        <div class="row" id="otherbuttons">
+                                            <div id="othersaveButton"></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- end of container-other-information -->
+                <!-- container-cso-information -->
+                <div id="container-com-cso-association" style="display: none">
+                    <div class="col-xl col-lg-7">
+                        <!-- container-cso-information header -->
+                        <div class="card border-bottom-primary shadow mb-2">
+                            <div class=" card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div id="com-cso-association-header"></div>
+                                </div>
+                                <div id="associationbuttons" class="row">
+                                    <div id="associate"></div>
+                                    <div id="desassociate"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="container-information-table" style="display: none">
+                       <div class="col-xl col-lg-7">
+                            <div class="card border-bottom-primary shadow mb-2">
+                              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                <h6 class="com-number m-0 font-weight-bold text-primary"></h6>
+                            </div>
+                            <div class="row row-5 card-body">
+                              <div class="col-sm-6">
+                              <div class="btn-container">
+                                  <button class="btn btn-primary" id="selectAllButton">Select All</button>
+                              </div>
+                              <div id="tableContainer"></div>
+                              </div>
+                                <div class="col-sm-6">
+                                  <h4>Email Subject</h4>
+                                  <div class="input-group mb-5">
+                                    <input type="text" class="form-control" placeholder="Email Subject" aria-label="Recipient's username" aria-describedby="button-addon2" id="emailSubjectInput">
+                                    <button class="btn btn-primary" type="button" id="copyButton">Copy Text</button>
+                                  </div>
+                                  <h4>Complaint Rationale</h4>
+                                  <div class="input-group mb-2">
+                                    <textarea class="form-control" placeholder="Complaint Rationale" id="floatingTextarea2" style="height: 200px"></textarea>
+                                  </div>
+                                  <button class="btn btn-primary mb-5" id="copyButtonRationale">Copy Rationale</button>
+
+                                  <h4>Engineering Email</h4>
+                                  <div class="input-group mb-2">
+                                    <textarea class="form-control" placeholder="Engineering Email" id="floatingTextarea3" style="height: 200px"></textarea>
+                                  </div>
+                                  <button class="btn btn-primary mb-5" id="copyButtonEngineering">Copy Engineering Email</button>
+                                  <button class="btn btn-primary mb-5" id="emailButtonEngineering">Email Engineering</button>
+
+
+                                  <h4>First Questions To Local Team</h4>
+                                  <div class="input-group mb-2">
+                                    <textarea class="form-control" placeholder="Local Team Email" id="floatingTextarea4" style="height: 200px"></textarea>
+                                  </div>
+                                  <button class="btn btn-primary" id="copyButtonLocal">Copy Email to Local Team</button>
+                                  <button class="btn btn-primary" id="emailButtonLocal">Email to Local Team</button>
+                                </div>                         
+                              </div>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                    
+                    <!-- end of container-cso-information -->
+                </div>
+            </div>
+    </div>
+            <!-- end of container-fluid -->
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <footer id="footer"></footer>
+
+            <!-- End of Content Wrapper -->
+
+        </div>
+    <!-- Adding COM Number to internal history title-->
+    <script>
+        let httpAdress = window.location.search;
+        let comNumber = httpAdress.substring(httpAdress.lastIndexOf("=") +1);
+        document.getElementById("internalhistory").innerHTML = '<h5 style="display:inline">Internal History - </h5> <h7 style="color:#6022A6">'+comNumber+'</h7>';
+    </script>
+        <!-- End of ID Page Wrapper -->
+</body>
+
+</html>

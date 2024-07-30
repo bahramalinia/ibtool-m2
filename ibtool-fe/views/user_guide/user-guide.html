@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>AW IB Tool</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+
+    <!-- styles for this page-->
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+
+    <!-- scripts for this page-->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/libs/dx/dx.all.js"></script>
+    <script src="/js/common-scripts.js"></script>
+    <script src="/js/init-topbar.js"></script>
+
+
+    <!-- Sidebar ,Topbar and footer -->
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load('/views/layout/sidebar.html');
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load('/views/layout/footer.html');
+        });
+    </script>
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script src="/js/index.js"></script>
+    <script src="/views/user_guide/user-guide.js"></script>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <div class="mb-2" id="longtabs">
+                    <div class="tabs-container"></div>
+                </div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <div class="card shadow mb-4">
+                        <!-- Card Header -->
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Import</h6>
+                        </div>
+                        <!-- Card Body -->
+                        <div class="card-body">
+                            <p>1. Click on Access Admin in Dashboard</p>
+                            <img src="/img/user-guide/Access Admin.PNG" alt="">
+                        </div>
+                    </div>
+                </div>
+                <!-- End of container fluide -->
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <div id="footer"></div>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+</body>
+
+</html>

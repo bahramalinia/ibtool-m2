@@ -1,0 +1,39 @@
+{
+    "title": "AW IB TOOL",
+    "name": "ibtool",
+    "version": "3.0.3",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "rimraf dist && webpack --progress",
+        "start": "webpack serve",
+        "build-start": "npm run build && npm run start",
+        "devStart": "nodemon server.js"
+    },
+    "description": "AW IB Tool",
+    "homepage": "views/Login/login.html",
+    "bugs": {
+        "url": "https://github.build.ge.com/223051946/IBTool",
+        "email": "sana.alinia@ge.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.build.ge.com/223051946/IBTool"
+    },
+    "dependencies": {
+        "express": "^4.17.3",
+        "url": "^0.11.0"
+    },
+    "devDependencies": {
+        "css-loader": "^6.7.1",
+        "del": "6.0.0",
+        "html-webpack-plugin": "^5.5.0",
+        "merge-stream": "2.0.0",
+        "mini-css-extract-plugin": "^2.6.0",
+        "nodemon": "^2.0.15",
+        "rimraf": "^3.0.2",
+        "webpack": "^5.69.1",
+        "webpack-cli": "^4.9.2",
+        "webpack-dev-server": "^4.7.4"
+    }
+}

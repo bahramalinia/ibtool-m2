@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>AW IB Tool</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+
+    <!-- styles for this page-->
+    <link href="/css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+
+    <!-- scripts for this page-->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/libs/dx/dx.all.js"></script>
+    <script src="/js/common-scripts.js"></script>
+    <script src="/js/init-topbar.js"></script>
+
+
+    <!-- Sidebar ,Topbar and footer -->
+    <script>
+        function isUserLoggedIn() {
+            return localStorage.getItem('CURRENT_USER_SSO') !== '' &&
+                localStorage.getItem('CURRENT_USER_SSO') !== undefined;
+        }
+        if (!isUserLoggedIn()) {
+            window.location.href = '/index.html';
+        }
+        $(document).ready(function() {
+            $('#sidebar').load('/views/layout/sidebar.html');
+
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load('/views/layout/footer.html');
+        });
+    </script>
+    <script>
+        $(async() => {
+            //Set some components to read only according to the profile
+            async function getUserAccessLevel(sso) {
+                    let accessLevel;
+                    await fetch(`${localStorage.getItem('backEndIP')}/getAccessLevel/${sso}`, {
+                            // mode: 'no-cors' // 'cors' by default
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(result => { accessLevel = result });
+                   
+                    return accessLevel;
+                }
+            const usersso = localStorage.getItem('CURRENT_USER_SSO');
+            const userAccessLevel = await getUserAccessLevel(usersso);
+            console.log("Access Level ", userAccessLevel);
+            
+             //Set some components to read only according to the profile
+            if ( userAccessLevel != "IB"){
+                window.location.href = '/views/com-cso-list/com-cso-list.html';
+            }
+    }) 
+    </script>
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script src="/js/libs/file-saver/FileSaver.min.js"></script>
+    <script src="/js/index.js"></script>
+    <script src="/js/calendar.js"></script>
+    <script src="/js/todolist.js"></script>
+    <script src="/js/reporting.js"></script>
+    <script src="/Database/data.js"></script>
+    <script src="/views/admin/admin.js"></script>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="mb-4"></div>
+                    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+                        <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+                        <a id="exportalldata" href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i
+                                class="fas fa-download fa-sm text-white-50"></i> Export</a>
+                    </div>
+                    <div>
+                      <div id="exportcharts"></div>
+                    </div>
+                    <!-- Content Row1  (4 cards in first row of dashboard)  -->
+                    <div class="row">
+                        <!-- Card 1  (ADMIN) -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-primary text-uppercase mb-3">
+                                                Admin
+                                            </div>
+                                            <div class="h6 mb-2 text-gray-800">
+                                                Add Manual records,<br /> Import data
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-download fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <a href="/views/admin/admin.html" class="btn btn-primary">
+                                            <span class="text">Access Admin</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 (CSO)-->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-success text-uppercase mb-3">
+                                                CSO
+                                            </div>
+                                            <div class="h6 mb-2 text-gray-800">
+                                                <div>Last Import Date :</div>
+                                                <div id="csoimporttime"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="far fa-smile fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <a href="/views/csoAssignment/csoAssignment.html" class="btn btn-success">
+                                            <span class="text">CSO Assignement</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3  (Complaints)-->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-info text-uppercase mb-3">
+                                                Complaints
+                                            </div>
+                                            <div class="h6 mb-2 text-gray-800">
+                                                <div>Last Import Date :</div>
+                                                <div id="importtime"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <a href="/views/comAssignment/comAssignment.html" class="btn btn-info">
+                                            <span class="text">COM Assignment</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 (My Analysis)-->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-warning text-uppercase mb-3">
+                                                User guide
+                                            </div>
+                                            <div class="h6 mb-0 text-gray-800">
+                                                Technical documentation </br> Maintenance manual
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="far fa-chart-bar fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col"></div>
+                                        <a href="/views/user_guide/user-guide.html" class="btn btn-warning">
+                                            <span class="text">User guide</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Row2 (Chart 1 chart 2 Calendar) -->
+                    <div class="row">
+                        <!--Card chart 1-->
+                        <div class="col-xl-3 col-lg-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Complaint distribution per owner
+                                    </h6>
+                                    <div class="dropdown no-arrow">
+                                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                          <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                      </a>
+                                      <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                          <div class="dropdown-header">Team View</div>
+                                          <a class="dropdown-item" href="#">Buc Team</a>
+                                          <a class="dropdown-item" href="#">Budapest Team</a>
+                                          <a class="dropdown-item" href="#">All Teams</a>
+                                      </div>
+                                  </div>
+                                </div>
+                                <!--card body for chart 1-->
+                                <div class="card-body">
+                                    <div class="demo-container">
+                                        <div id="pie"></div>
+                                        <div id="tempPieChart"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Card Chart 2 -->
+                        <div class="col-xl-6 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header - Dropdown -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        Analysis Status
+                                    </h6>
+                                    <div class="dropdown no-arrow">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                                            <div class="dropdown-header">Team View</div>
+                                            <a class="dropdown-item" href="#">Buc Team</a>
+                                            <a class="dropdown-item" href="#">Budapest Team</a>
+                                            <a class="dropdown-item" href="#">All Teams</a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Card Body for chart 2-->
+                                <div class="card-body">
+                                  <div class="dx-viewport">
+                                    <div class="demo-container">
+                                      <div id="chart"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Calendar -->
+                        <div class="col-xl-3 col-lg-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Calendar</h6>
+                                </div>
+                                <!-- Card Body -->
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center mb-2">
+                                        <div class="col mr-2">
+                                            <div id="calendar-container" style="width: 100%;"></div>
+                                        </div>
+                                    </div>
+                                    <!--Fiscal Date -->
+                                    <div class="col">
+                                        <div class="text-s font-weight-bold text-primary text-uppercase mb-2">
+                                            <span>Fiscal Date :</span>
+                                            <span id="fiscalWeek"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content Row3 (Notification, Activity Feed, Todo List) -->
+                    <div class="row">
+                        <!-- Notification -->
+                        <div class="col-xl-3 col-lg-4">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Complaint Per Age</h6>
+                                </div>
+                                <!-- Card Body for Notification -->
+                                <div class="card-body">
+                                  <div class="dx-viewport">
+                                    <div class="demo-container">
+                                      <div id="AgePie"></div>
+                                      <div id="tempAgePieChart"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Activity Feed -->
+                        <div class="col-xl-6 col-lg-7">
+                            <div class="card shadow mb-4">
+                                <!-- Card Header -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">Number of analysis by application</h6>
+                                </div>
+                                <!-- Card Body for Activity Feed -->
+                                <div class="card-body">
+                                  <div class="dx-viewport">
+                                    <div class="demo-container">
+                                      <div id="Appchart"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Todo list -->
+                        <div class="col-xl-3 col-lg-4">
+                          <div class="card shadow mb-4">
+                              <!-- Card Header-->
+                              <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                  <h6 class="m-0 font-weight-bold text-primary">
+                                      TO Do List
+                                  </h6>
+                              </div>
+                              <!-- Card Body -->
+                              <div class="card-body">
+                                  <div class="add-items d-flex">
+                                      <input type="text" class="form-control todo-list-input" placeholder="What do you need to do today?" />
+                                      <button class="btn btn-primary font-weight-bold add send-todo"> <!-- Changed class name to 'add' -->
+                                          Add
+                                      </button>
+                                  </div>
+                                  <div class="list-wrapper">
+                                      <ul class="d-flex flex-column-reverse todo-list">
+                                          <li>
+                                              <div class="form-check">
+                                                  <label class="form-check-label">
+                                                      <input class="checkbox" type="checkbox" /> CSO
+                                                      <i class="input-helper"></i>
+                                                  </label>
+                                              </div>
+                                              <i class="remove fas fa-trash"></i>
+                                          </li>
+                                      </ul>
+                                  </div>
+                                  <!-- End List wrapper for todo list -->
+                              </div>
+                              <!-- End of card body of todo list -->
+                          </div>
+                          <!-- End of card of todo list -->
+                      </div>
+                      
+                        <!-- End of todo list -->
+                    </div>
+                    <!-- End of row content 3 -->
+                </div>
+                <!-- End of container fluide -->
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <div id="footer"></div>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+</body>
+
+</html>

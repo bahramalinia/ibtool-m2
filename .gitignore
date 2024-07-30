@@ -1,0 +1,29 @@
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+.crash.log
+*.log
+.terraform.lock.hcl
+
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment variables
+.env
+.env.*
+.envrc
+
+# Local files
+.DS_Store
+*.swp
+*.swo
+
+# AWS credentials
+.aws/
+*.pem
+*.key

@@ -1,0 +1,119 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>AW IB Tool</title>
+    <!-- Custom fonts for this template-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" integrity="sha512-iBBXm8fW90+nuLcSKlbmrPcLa0OT92xO1BIsZ+ywDWZCvqsWgccV3gFoRBv0z+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous" referrerpolicy="no-referrer"
+    />
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    <script src="/js/navbar.js"></script>
+    <script>
+        $(document).ready(highlightActiveNavbar());
+    </script>
+</head>
+
+
+<body>
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/homepage.html">
+            <div class="sidebar-brand-icon">
+                <img src="/img/GE-HLTHCR_Stacked_RGB-White.svg" alt="" width="100">
+            </div>
+            <div class="sidebar-brand-text mx-3">AW IB TOOL</div>
+        </a>
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item">
+            <a class="nav-link" href="/homepage.html" id="dashboard">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span></a>
+        </li>
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Records
+        </div>
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link" href="/views/my-analysis/my-analysis.html" id="analysispage">
+                <i class="fas fa-clipboard-list"></i>
+                <span>My Analysis</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/views/com-cso-list/com-cso-list.html" id="comcsolist">
+                <i class="fas fa-clipboard-list"></i>
+                <span>COM/CSO List</span>
+            </a>
+        </li>
+        <!-- Nav Item - Pages Collapse Menu -->
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+        <!-- Heading -->
+        <div class="sidebar-heading">
+            Reports
+        </div>
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+            <a class="nav-link" href="/views/meeting/meeting.html" id="meetingpage">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Meetings</span>
+            </a>
+        </li> 
+        <li class="nav-item">
+          <a class="nav-link" href="/views/charts/charts.html" id="chartspage">
+              <i class="fas fa-clipboard-list"></i>
+              <span>Charts</span>
+          </a>
+      </li> 
+        <!-- Nav Item - Pages Collapse Menu -->
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+            <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+    </ul>
+    <script src="/js/index.js"></script>
+    <script>
+        $(async() => {
+            //Set some components to read only according to the profile
+            async function getUserAccessLevel(sso) {
+                    let accessLevel;
+                    await fetch(`${localStorage.getItem('backEndIP')}/getAccessLevel/${sso}`, {
+                            // mode: 'no-cors' // 'cors' by default
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(result => { accessLevel = result });
+                   
+                    return accessLevel;
+                }
+            const usersso = localStorage.getItem('CURRENT_USER_SSO');
+            const userAccessLevel = await getUserAccessLevel(usersso);
+            console.log("Access Level ", userAccessLevel);
+            const dashboard = document.getElementById("dashboard")
+          //  const analysis = document.getElementById("analysispage")
+            const meetings = document.getElementById("meetingpage")
+            
+             //Set some components to read only according to the profile
+            /* if ( userAccessLevel != "IB"){
+                dashboard.classList.add("disabled");
+                analysis.classList.add("disabled");
+                meetings.classList.add("disabled");
+            } */
+    }) 
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "ibtool"
+      MONGO_INITDB_ROOT_PASSWORD: "iBeeTim!"
+      MONGO_INITDB_DATABASE: "ibtool"
+    volumes: 
+      - /root/ibtool/db:/data/db
+    networks:
+      - ibapp
+    restart: always
+  ibtoolbe:
+    image: ibtoolbe
+    container_name: ibtoolbe
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "mongo"
+    networks:
+      - ibapp
+    restart: always
+  ibtool:
+    image: ibtool
+    container_name: ibtool
+    ports:
+      - "8090:80"
+    depends_on:
+      - "ibtoolbe"
+    networks:
+      - ibapp
+    restart: always
+networks:
+  ibapp:
+    driver: bridge
+volumes:
+  db:

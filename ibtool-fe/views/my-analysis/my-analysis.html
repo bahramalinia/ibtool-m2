@@ -1,0 +1,182 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <!--styles-->
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+    <link href="/css/style.css" rel="stylesheet" />
+
+    <!--scripts-->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/js/libs/dx/dx.all.js"></script>
+
+    <script type="text/javascript" src="/js/libs/jspdf/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="/js/libs/jspdf/jspdf.plugin.autotable.min.js"></script>
+    <script src="/js/libs/polyfill/polyfill.min.js"></script>
+    <script src="/js/libs/exceljs/exceljs.min.js"></script>
+    <script src="/js/libs/file-saver/FileSaver.min.js"></script>
+    <script src="/js/init-topbar.js"></script>
+
+    <!-- Loading Sidebar Topbar and footer -->
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load("/views/layout/sidebar.html");
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load("/views/layout/footer.html");
+        });
+    </script>
+
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+
+    <script>
+        $(async() => {
+            //Set some components to read only according to the profile
+            async function getUserAccessLevel(sso) {
+                    let accessLevel;
+                    await fetch(`${localStorage.getItem('backEndIP')}/getAccessLevel/${sso}`, {
+                            // mode: 'no-cors' // 'cors' by default
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(result => { accessLevel = result });
+                   
+                    return accessLevel;
+                }
+            const usersso = localStorage.getItem('CURRENT_USER_SSO');
+            const userAccessLevel = await getUserAccessLevel(usersso);
+            console.log("Access Level ", userAccessLevel);
+            
+             //Set some components to read only according to the profile
+            /* if ( userAccessLevel != "IB"){
+                window.location.href = '/views/com-cso-list/com-cso-list.html';
+            } */
+    }) 
+    </script>
+
+    <script src="/js/init-topbar.js"></script>
+    <script src="/Database/data.js"></script>
+    <script src="/views/my-analysis/my-analysis.js"></script>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <div class="mb-3"></div>
+                    <!-- DataTales Example -->
+                    <div class="row">
+                        <!-- Card 1  (Safety) -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-primary shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-primary text-uppercase mb-3">
+                                                MY Safety Analysis
+                                            </div>
+                                            <div class="text-s mb-2  text-gray-800">
+                                                <div id="TotalHaz"> </div>
+                                                <div id="HazPQM"></div>
+                                                <div id="HazInternal"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-success mb-3">
+                                                MY CSOs
+                                            </div>
+                                            <div class="text-s mb-2  text-gray-800">
+                                                <div id="All_CSO"></div>
+                                                <div id="Red_CSO"></div>
+                                                <div id="Old_CSOs"></div>
+                                                <div id="Other_CSOs"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-info shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-info text-uppercase mb-3">
+                                                MY Complaints
+                                            </div>
+                                            <div class="text-s mb-2  text-gray-800">
+                                                <div id="All_Complaints"></div>
+
+                                                <div id="Sensitive"></div>
+                                                <div id="Old_Complaints"></div>
+                                                <div id="Other_Complaints"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4-->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-warning shadow h-100 py-1">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-s font-weight-bold text-warning text-uppercase mb-3">
+                                                My analysis
+                                            </div>
+                                            <div class="text-s mb-2  text-gray-800">
+                                                <div id="Analysis"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card shadow mb-4">
+                        <div id="my-analysis"></div>
+                    </div>
+                </div>
+            </div>
+            <footer id="footer"></footer>
+            <!-- /.container-fluid -->
+        </div>
+        <!-- End of Main Content -->
+        <!-- Footer -->
+
+    </div>
+    <!-- End of Content Wrapper -->
+    <!-- End of Page Wrapper -->
+</body>
+
+</html>

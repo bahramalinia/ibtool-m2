@@ -1,0 +1,238 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <!--Styles-->
+    <link rel="stylesheet" href="/css/blue.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/paginationjs/2.1.5/pagination.css">
+
+    <link href="/css/style.css" rel="stylesheet" />
+    <!--Scripts-->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script src="/js/init-topbar.js"></script>
+    <!-- Loading Sidebar,Topbar,footer and Meeting's page containers-->
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load('/views/layout/sidebar.html');
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load('/views/layout/footer.html');
+        })
+    </script>
+    <script src="/js/libs/polyfill/polyfill.min.js"></script>
+    <script src="/js/libs/exceljs/exceljs.min.js"></script>
+    <script src="/js/libs/file-saver/FileSaver.min.js"></script>
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script>
+        $(async() => {
+            //Set some components to read only according to the profile
+            async function getUserAccessLevel(sso) {
+                    let accessLevel;
+                    await fetch(`${localStorage.getItem('backEndIP')}/getAccessLevel/${sso}`, {
+                            // mode: 'no-cors' // 'cors' by default
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                        })
+                        .then(response => response.json())
+                        .then(result => { accessLevel = result });
+                   
+                    return accessLevel;
+                }
+            const usersso = localStorage.getItem('CURRENT_USER_SSO');
+            const userAccessLevel = await getUserAccessLevel(usersso);
+            console.log("Access Level ", userAccessLevel);
+            
+             //Set some components to read only according to the profile
+            if ( userAccessLevel != "IB"){
+                window.location.href = '/views/com-cso-list/com-cso-list.html';
+            }
+    }) 
+    </script>
+    <script src="/js/libs/dx-quill/dx-quill.min.js"></script>
+    <script src="/js/libs/dx/dx.all.js"></script>
+    <script src="/js/libs/pagination/pagination.min.js"></script>
+    <script type="text/javascript" src="/js/libs/jspdf/jspdf.umd.min.js"></script>
+    <script type="text/javascript" src="/js/libs/jspdf/jspdf.plugin.autotable.min.js"></script>
+    <script src="/Database/data.js"></script>
+    <script src="/views/meeting/meeting.js"></script>
+
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar"></div>
+                <!--  Navigation bar -->
+                <div class="d-flex flex-column">
+                    <div id="longtabs">
+                        <div class="tabs-container"></div>
+                    </div>
+                </div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <div id="container-fluid-agenda" style="display:block;">
+                        <!-- First page of Meeting Page Agenda/Selection Container -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-3"></div>
+                        <!-- Content Row -->
+                        <div class="row">
+                            <!-- Card -->
+                            <div class="col-xl col-lg-7">
+                                <div class="card shadow mb-4">
+                                    <!-- Card Header -->
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            Create Meetings
+                                        </h6>
+                                    </div>
+                                    <!-- Card Body -->
+
+                                    <div class="demo-container">
+                                        <div class="filter-container">
+                                            <div class="row">
+                                                <div class="col-sm-6">
+                                                    <div id="filterBuilder"></div>
+                                                    <div id="apply"></div>
+                                                    <div class="dx-clearfix"></div>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <div>
+                                                        <form id="form-container1">
+                                                            <div id="create-meeting"></div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="agenda-grid-container"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="container-fluid-meeting" style="display:none;">
+                        <!-- Meeting pages Container -->
+                        <div class="d-sm-flex align-items-center justify-content-between mb-1"></div>
+                        <!-- Card -->
+                        <div id="demo"></div>
+                        <div class="mb-1"></div>
+
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-left-primary shadow mb-1">
+                                <!-- Card Body -->
+                                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                    <h6 class="m-0 font-weight-bold text-primary">
+                                        <a id="recordlink" href=""></a>
+                                    </h6>
+                                </div>
+                                <div class="row-5 card-body">
+                                    <!-- Card -->
+                                    <div class="demo-container">
+                                        <div id="form-demo1">
+                                            <div id="meeting-header"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card -->
+                        <div class="col-xl col-lg-7">
+                            <div class="card border-left-primary shadow mb-4">
+                                <div class="row row-5 card-body">
+                                    <div class="col-sm-6">
+                                        <div class="row card-body" id="switchbox">
+                                            <div id="externaltitle" class="text-s font-weight-bold ">
+                                                <h5>External History</h5>
+                                            </div>
+                                            <div id="internaltitle" class="text-s font-weight-bold" style="display: none;">
+                                                <h5>History</h5>
+                                            </div>
+                                            <div id="switch-off"></div>
+                                        </div>
+
+                                        <div id="showexternalhistory" class="mb-2"></div>
+
+                                        <div id="showinternalhistory"></div>
+                                        <div class="mb-4"></div>
+                                        <div class="mb-4"></div>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <div class="card border-left-primary shadow">
+                                            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                                <h6 class="m-0 font-weight-bold text-primary">
+                                                    Next Action and Comments
+                                                </h6>
+                                            </div>
+                                            <div id="form-next-action">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="container-fluid-minutes" style="display:none;">
+                        <div class="d-sm-flex align-items-center justify-content-between mb-3"></div>
+                        <div class="row mb-4">
+                            <div class="col-xl col-lg-7">
+                                <div class="card shadow h-100">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            List of All Meetings
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div>
+                                            <div class="demo-container">
+                                                <div id="meetings"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-xl col-lg-7">
+                                <div class="card shadow mb-4">
+                                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                                        <h6 class="m-0 font-weight-bold text-primary">
+                                            Minutes Review
+                                        </h6>
+                                    </div>
+                                    <div id="minutes-review"></div>
+                                    <div id="autoExpand"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.container-fluid/Page Content -->
+            <!-- Footer -->
+            <footer id="footer"></footer>
+
+        </div>
+
+
+    </div>
+    <!-- End of Content Wrapper -->
+    </div>
+
+    <!-- End of Page Wrapper -->
+</body>
+
+</html>

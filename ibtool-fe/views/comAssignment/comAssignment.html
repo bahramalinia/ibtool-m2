@@ -1,0 +1,68 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+    <!-- styles -->
+    <link href="/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="/css/blue.css" />
+    <!-- scripts -->
+    <script src="/js/libs/jquery/jquery.min.js"></script>
+    <script src="/js/init-topbar.js"></script>
+    <!-- Loading Sidebar Topbar and footer -->
+    <script>
+        $(document).ready(function() {
+            $('#sidebar').load("/views/layout/sidebar.html");
+            $('#topbar').load('/views/layout/topbar.html', async function() {
+                await setUserNameInTopbar();
+            });
+            $('#footer').load("/views/layout/footer.html");
+        });
+    </script>
+    <script>
+        window.jQuery || document.write(decodeURIComponent('%3Cscript src="js/jquery.min.js"%3E%3C/script%3E'))
+    </script>
+    <script src="/js/libs/dx/dx.all.js"></script>
+    <script src="/js/libs/dx-quill/dx-quill.min.js"></script>
+    <script src="/Database/data.js"></script>
+    <script src="comAssignment.js"></script>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <div id="sidebar" class="d-flex"></div>
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- Main Content -->
+            <div id="content">
+                <!-- Topbar -->
+                <div id="topbar" class="mb-4"></div>
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- DataTales Assignement table -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">COM Assignment</h6>
+                        </div>
+                        <div class="mb-4">
+                            <div id="comAssigenement"></div>
+                        </div>
+                        <div class="col mb-4">
+                            <div id="assign"></div>
+                        </div>
+                    </div>
+                    <!-- End of DataTales Assignement table -->
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+            <!-- Footer -->
+            <div id="footer"></div>
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+</body>
+
+</html>
