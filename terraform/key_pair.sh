@@ -1,6 +1,6 @@
 #!/bin/bash
 
-key_name = ec2_key
+key_name = ec2_keypair
 
 # Create SSH Key Pair and store its ID in a variable
 aws ec2 create-key-pair \

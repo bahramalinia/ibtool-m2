@@ -125,19 +125,35 @@ resource "aws_eip" "ibtool_eip" {
   depends_on                = [aws_internet_gateway.ibtool_IGW, aws_instance.web]
 }
 
+resource "tls_private_key" "ibtool_key" {
+  algorithm = "RSA"
+  rsa_bits  = 2048
+}
+
+resource "aws_key_pair" "ibtool_key" {
+  key_name   = "key-pair"
+  public_key = tls_private_key.ibtool_key.public_key_openssh
+}
+
+resource "local_file" "private_key" {
+  content        = tls_private_key.ibtool_key.private_key_pem
+  filename       = "${path.module}/key-pair.pem"
+  file_permission = "0400"
+}
+
 # create an ubuntu server and install/enable apache2
 resource "aws_instance" "web" {
   ami               = var.ami
   instance_type     = var.instance_type
   availability_zone = var.availability_zone_a
-  key_name          = "ec2_key"
+  key_name          = aws_key_pair.ibtool_key.key_name
 
   network_interface {
     device_index         = 0
     network_interface_id = aws_network_interface.ibtool_net_interface.id
   }
 
-  user_data = file("${path.module}/user_data.sh")
+  user_data = file("${path.module}/userdata.sh")
 
   tags = {
     name = "web_server"
@@ -145,69 +161,69 @@ resource "aws_instance" "web" {
 
 }
 
-# resource "null_resource" "wait_for_instance" {
-#   depends_on = [aws_eip.ibtool_eip]
+resource "null_resource" "wait_for_instance" {
+  depends_on = [aws_eip.ibtool_eip, aws_instance.web, local_file.private_key]
 
-#   provisioner "remote-exec" {
-#     inline = [
-#       "echo Instance is ready"
-#     ]
+  provisioner "remote-exec" {
+    inline = [
+      "echo Instance is ready"
+    ]
 
-#     connection {
-#       type        = "ssh"
-#       user        = "ec2-user"
-#       private_key = file("~/.ssh/ec2_key.pem")
-#       host        = aws_instance.web.public_ip
-#     }
-#   }
-# }
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = aws_instance.web.public_ip
+    }
+  }
+}
 
-# resource "null_resource" "provision_fe" {
-#   depends_on = [null_resource.wait_for_instance]
+resource "null_resource" "provision_fe" {
+  depends_on = [null_resource.wait_for_instance]
 
-#   provisioner "file" {
-#     source      = "../ibtool-fe"
-#     destination = "/home/ec2-user/ibtool-fe"
+  provisioner "file" {
+    source      = "../ibtool-fe"
+    destination = "/home/ec2-user/ibtool-fe"
 
-#     connection {
-#       type        = "ssh"
-#       user        = "ec2-user"
-#       private_key = file("~/.ssh/ec2_key.pem")
-#       host        = aws_instance.web.public_ip
-#     }
-#   }
-# }
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = aws_instance.web.public_ip
+    }
+  }
+}
 
-# resource "null_resource" "provision_be" {
-#   depends_on = [null_resource.wait_for_instance]
+resource "null_resource" "provision_be" {
+  depends_on = [null_resource.wait_for_instance]
 
-#   provisioner "file" {
-#     source      = "../ibtool-be"
-#     destination = "/home/ec2-user/ibtool-be"
+  provisioner "file" {
+    source      = "../ibtool-be"
+    destination = "/home/ec2-user/ibtool-be"
 
-#     connection {
-#       type        = "ssh"
-#       user        = "ec2-user"
-#       private_key = file("~/.ssh/ec2_key.pem")
-#       host        = aws_instance.web.public_ip
-#     }
-#   }
-# }
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = aws_instance.web.public_ip
+    }
+  }
+}
 
-# resource "null_resource" "run_userdata" {
-#   depends_on = [null_resource.provision_fe, null_resource.provision_be]
+resource "null_resource" "run_userdata" {
+  depends_on = [null_resource.provision_fe, null_resource.provision_be]
 
-#   provisioner "remote-exec" {
-#     inline = [
-#       "chmod +x /home/ec2-user/userdata.sh",
-#       "/home/ec2-user/userdata.sh"
-#     ]
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /home/ec2-user/userdata.sh",
+      "/home/ec2-user/userdata.sh"
+    ]
 
-#     connection {
-#       type        = "ssh"
-#       user        = "ec2-user"
-#       private_key = file("~/.ssh/ec2_key.pem")
-#       host        = aws_instance.web.public_ip
-#     }
-#   }
-# }
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = aws_instance.web.public_ip
+    }
+  }
+}

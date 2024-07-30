@@ -114,7 +114,7 @@ Provide step-by-step instructions on how to get started with your project, inclu
 3. Edit configuration files:
 
    access key and secret key should be configured into the provider.tf, if aws cli is installed on the host server the default profile could be used.
-   change the user_data.sh permession to be executable using "sudo chmod +x user_data.sh"
+   change the userdata.sh permession to be executable using "sudo chmod +x userdata.sh"
 
 4. Deploy the infrastructure:
 
