@@ -16,13 +16,11 @@ sudo yum-config-manager --save --setopt=docker-ce-stable.skip_if_unavailable=tru
 sudo amazon-linux-extras install docker
 
 echo "Enabling Docker service to start on boot..."
-sudo service docker start
+sudo systemctl enable docker
+sudo systemctl start docker
+
 echo "Adding ec2-user to the Docker group..."
 sudo usermod -a -G docker ec2-user
-
-echo "Installing Docker Compose..."
-sudo curl -L "https://github.com/docker/compose/releases/download/2.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
 
 echo "Building Docker images for frontend..."
 cd /home/ec2-user/ibtool-fe
@@ -31,6 +29,17 @@ sudo docker build -t ibtool .
 echo "Building Docker images for backend..."
 cd /home/ec2-user/ibtool-be
 sudo docker build -t ibtoolbe .
+
+echo "Installing Docker Compose..."
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.29.1/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+
+# Adding Docker Compose to the PATH
+export PATH=$PATH:/usr/local/bin
+sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+# Verify Docker Compose installation
+docker-compose version
 
 echo "Creating docker-compose.yml file..."
 cat <<EOT | sudo tee /home/ec2-user/docker-compose.yaml
