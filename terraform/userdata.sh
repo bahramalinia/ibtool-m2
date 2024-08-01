@@ -1,44 +1,39 @@
 #!/bin/bash
 LOGFILE="/home/ec2-user/userdata.log"
-exec > >(tee -a ${LOGFILE} | logger -t userdata -s 2>/dev/console) 2>&1
+exec > >(sudo tee -a ${LOGFILE} | logger -t userdata -s 2>/dev/console) 2>&1
 
 echo "Starting user data script..."
 
 echo "Updating yum packages..."
-yum update -y
+sudo yum update -y
 
 echo "Installing dependencies..."
-yum install -y yum-utils device-mapper-persistent-data lvm2
-
-echo "Adding Docker repository..."
-yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
 
 echo "Installing Docker..."
-yum install -y docker-ce docker-ce-cli containerd.io
+sudo yum-config-manager --save --setopt=docker-ce-stable.skip_if_unavailable=true
 
-echo "Starting Docker service..."
-systemctl start docker
+sudo amazon-linux-extras install docker
 
 echo "Enabling Docker service to start on boot..."
-systemctl enable docker
-
+sudo service docker start
 echo "Adding ec2-user to the Docker group..."
-usermod -a -G docker ec2-user
+sudo usermod -a -G docker ec2-user
 
 echo "Installing Docker Compose..."
-curl -L "https://github.com/docker/compose/releases/download/2.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-chmod +x /usr/local/bin/docker-compose
+sudo curl -L "https://github.com/docker/compose/releases/download/2.29.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 echo "Building Docker images for frontend..."
 cd /home/ec2-user/ibtool-fe
-docker build -t ibtool .
+sudo docker build -t ibtool .
 
 echo "Building Docker images for backend..."
 cd /home/ec2-user/ibtool-be
-docker build -t ibtoolbe .
+sudo docker build -t ibtoolbe .
 
 echo "Creating docker-compose.yml file..."
-cat <<EOT > /home/ec2-user/docker-compose.yaml
+cat <<EOT | sudo tee /home/ec2-user/docker-compose.yaml
 version: "3.7"
 
 services:
@@ -85,6 +80,6 @@ EOT
 
 echo "Starting Docker Compose..."
 cd /home/ec2-user
-docker-compose up -d
+sudo docker-compose up -d
 
 echo "User data script completed."
