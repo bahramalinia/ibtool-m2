@@ -160,31 +160,9 @@ resource "aws_instance" "web" {
     name = "web_server"
   }
 
-  provisioner "file" {
-    source      = "${path.module}/userdata.sh"
-    destination = "/home/ec2-user/userdata.sh"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = self.public_ip
-    }
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /home/ec2-user/userdata.sh",
-      "/home/ec2-user/userdata.sh"
-    ]
-
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = self.public_ip
-    }
-  }
+  depends_on = [aws_network_interface.ibtool_net_interface]
 }
+
 
 
 resource "null_resource" "wait_for_instance" {
@@ -194,7 +172,20 @@ resource "null_resource" "wait_for_instance" {
     inline = [
       "echo Instance is ready"
     ]
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = "${aws_instance.web.public_ip}"
+    }
+  }
+}
+resource "null_resource" "copy_userdata" {
+  depends_on = [null_resource.wait_for_instance]
 
+  provisioner "file" {
+    source      = "${path.module}/userdata.sh"
+    destination = "/home/ec2-user/userdata.sh"
     connection {
       type        = "ssh"
       user        = "ec2-user"
@@ -203,6 +194,24 @@ resource "null_resource" "wait_for_instance" {
     }
   }
 }
+resource "null_resource" "run_userdata" {
+  depends_on = [null_resource.wait_for_instance]
+
+  provisioner "remote-exec" {
+    inline = [
+      "sudo chmod +x /home/ec2-user/userdata.sh",
+      "sudo /home/ec2-user/userdata.sh"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      private_key = file(local_file.private_key.filename)
+      host        = "${aws_instance.web.public_ip}"
+    }
+  }
+}
+
 
 resource "null_resource" "provision_fe" {
   depends_on = [null_resource.wait_for_instance]
