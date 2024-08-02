@@ -79,6 +79,17 @@ resource "aws_security_group" "ibtool_SG" {
       self             = false
     },
     {
+      description      = "http traffic on 8090"
+      from_port        = 8090
+      to_port          = 8090
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0", aws_vpc.ibtool_vpc.cidr_block]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
       description      = "ssh"
       from_port        = 22
       to_port          = 22
