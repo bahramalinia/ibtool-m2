@@ -644,8 +644,8 @@ module "vpc" {
   tags = local.tags
 }
 
-resource "aws_ecr_repository" "microservices" {
-  name                 = "microservices"
+resource "aws_ecr_repository" "ibtool" {
+  name                 = "ibtool"
   image_tag_mutability = "MUTABLE"
   image_scanning_configuration {
     scan_on_push = true
@@ -661,18 +661,18 @@ aws ecr get-login-password --region eu-west-3 | docker login --username AWS --pa
 # Build and push frontend image
 cd ~/Documents/repos/ibtool-m2/ibtool-fe
 docker build -t ibtool .
-docker tag ibtool:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtool-latest
-docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtool-latest
+docker tag ibtool:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/ibtool:ibtool-latest
+docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/ibtool:ibtool-latest
 
 # Build and push backend image
 cd ~/Documents/repos/ibtool-m2/ibtool-be
 docker build -t ibtoolbe .
-docker tag ibtoolbe:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtoolbe-latest
-docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtoolbe-latest
+docker tag ibtoolbe:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/ibtool:ibtoolbe-latest
+docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/ibtool:ibtoolbe-latest
 EOT
   }
   
-  depends_on = [aws_ecr_repository.microservices]
+  depends_on = [aws_ecr_repository.ibtool]
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
@@ -697,25 +697,112 @@ resource "aws_iam_policy_attachment" "ecs_task_execution_role_policy" {
   name       = "ecs_task_exec_policy"
 }
 
-resource "aws_ecs_task_definition" "microservices" {
-  family                = "my-microservices-task"
-  network_mode          = "awsvpc"
+resource "aws_ecs_task_definition" "mongo" {
+  family                   = "mongo-task"
+  network_mode             = "bridge"
   requires_compatibilities = ["EC2"]
-  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([
-    {
-      name      = "my-microservices"
-      image     = "${aws_ecr_repository.microservices.repository_url}:latest"
-      cpu       = 256
-      memory    = 512
-      essential = true
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ]
-    }
-  ])
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = jsonencode([{
+    name      = "mongo"
+    image     = "mongo"
+    essential = true
+    memory    = 512
+    cpu       = 256
+    portMappings = [{
+      containerPort = 27017
+      hostPort      = 27017
+    }]
+    environment = [
+      {
+        name  = "MONGO_INITDB_ROOT_USERNAME"
+        value = "ibtool"
+      },
+      {
+        name  = "MONGO_INITDB_ROOT_PASSWORD"
+        value = "iBeeTim!"
+      },
+      {
+        name  = "MONGO_INITDB_DATABASE"
+        value = "ibtool"
+      }
+    ]
+    mountPoints = [{
+      sourceVolume = "db"
+      containerPath = "/data/db"
+    }]
+  }])
+  volume {
+    name      = "db"
+    host_path = "/root/ibtool/db"
+  }
 }
+
+resource "aws_ecs_task_definition" "ibtoolbe" {
+  family                   = "ibtoolbe-task"
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = jsonencode([{
+    name      = "ibtoolbe"
+    image     = "${aws_ecr_repository.ibtool.repository_url}:latest"
+    essential = true
+    memory    = 512
+    cpu       = 256
+    portMappings = [{
+      containerPort = 8080
+      hostPort      = 8080
+    }]
+  }])
+}
+
+resource "aws_ecs_task_definition" "ibtool" {
+  family                   = "ibtool-task"
+  network_mode             = "bridge"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = jsonencode([{
+    name      = "ibtool"
+    image     = "${aws_ecr_repository.ibtool.repository_url}:latest"
+    essential = true
+    memory    = 512
+    cpu       = 256
+    portMappings = [{
+      containerPort = 80
+      hostPort      = 8090
+    }]
+  }])
+}
+
+
+resource "aws_ecs_service" "mongo" {
+  name            = "mongo-service"
+  cluster         = module.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.mongo.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+}
+
+resource "aws_ecs_service" "ibtoolbe" {
+  name            = "ibtoolbe-service"
+  cluster         = module.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.ibtoolbe.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+  depends_on = [
+    aws_ecs_service.mongo
+  ]
+}
+
+resource "aws_ecs_service" "ibtool" {
+  name            = "ibtool-service"
+  cluster         = module.ecs_cluster.id
+  task_definition = aws_ecs_task_definition.ibtool.arn
+  desired_count   = 1
+  launch_type     = "EC2"
+  depends_on = [
+    aws_ecs_service.ibtoolbe
+  ]
+}
+
+
 
