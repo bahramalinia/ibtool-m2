@@ -643,3 +643,79 @@ module "vpc" {
 
   tags = local.tags
 }
+
+resource "aws_ecr_repository" "microservices" {
+  name                 = "microservices"
+  image_tag_mutability = "MUTABLE"
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "null_resource" "docker_push" {
+  provisioner "local-exec" {
+    command = <<EOT
+#!/bin/bash
+aws ecr get-login-password --region eu-west-3 | docker login --username AWS --password-stdin 522814712726.dkr.ecr.eu-west-3.amazonaws.com
+
+# Build and push frontend image
+cd ~/Documents/repos/ibtool-m2/ibtool-fe
+docker build -t ibtool .
+docker tag ibtool:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtool-latest
+docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtool-latest
+
+# Build and push backend image
+cd ~/Documents/repos/ibtool-m2/ibtool-be
+docker build -t ibtoolbe .
+docker tag ibtoolbe:latest 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtoolbe-latest
+docker push 522814712726.dkr.ecr.eu-west-3.amazonaws.com/microservices:ibtoolbe-latest
+EOT
+  }
+  
+  depends_on = [aws_ecr_repository.microservices]
+}
+
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "ecsTaskExecutionRole"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy_attachment" "ecs_task_execution_role_policy" {
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  roles      = [aws_iam_role.ecs_task_execution_role.name]
+  name       = "ecs_task_exec_policy"
+}
+
+resource "aws_ecs_task_definition" "microservices" {
+  family                = "my-microservices-task"
+  network_mode          = "awsvpc"
+  requires_compatibilities = ["EC2"]
+  execution_role_arn    = aws_iam_role.ecs_task_execution_role.arn
+  container_definitions = jsonencode([
+    {
+      name      = "my-microservices"
+      image     = "${aws_ecr_repository.microservices.repository_url}:latest"
+      cpu       = 256
+      memory    = 512
+      essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+        }
+      ]
+    }
+  ])
+}
+
