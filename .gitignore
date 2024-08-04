@@ -27,3 +27,4 @@ yarn-error.log
 .aws/
 *.pem
 *.key
+dist

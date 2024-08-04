@@ -79,17 +79,6 @@ resource "aws_security_group" "ibtool_SG" {
       self             = false
     },
     {
-      description      = "http traffic on 8090"
-      from_port        = 8090
-      to_port          = 8090
-      protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0", aws_vpc.ibtool_vpc.cidr_block]
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
-    },
-    {
       description      = "ssh"
       from_port        = 22
       to_port          = 22
@@ -176,85 +165,85 @@ resource "aws_instance" "web" {
 
 
 
-resource "null_resource" "wait_for_instance" {
-  depends_on = [aws_eip.ibtool_eip, aws_instance.web, local_file.private_key]
+# resource "null_resource" "wait_for_instance" {
+#   depends_on = [aws_eip.ibtool_eip, aws_instance.web, local_file.private_key]
 
-  provisioner "remote-exec" {
-    inline = [
-      "echo Instance is ready"
-    ]
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = "${aws_instance.web.public_ip}"
-    }
-  }
-}
-resource "null_resource" "copy_userdata" {
-  depends_on = [null_resource.wait_for_instance]
+#   provisioner "remote-exec" {
+#     inline = [
+#       "echo Instance is ready"
+#     ]
+#     connection {
+#       type        = "ssh"
+#       user        = "ec2-user"
+#       private_key = file(local_file.private_key.filename)
+#       host        = "${aws_instance.web.public_ip}"
+#     }
+#   }
+# }
+# resource "null_resource" "copy_userdata" {
+#   depends_on = [null_resource.wait_for_instance]
 
-  provisioner "file" {
-    source      = "${path.module}/userdata.sh"
-    destination = "/home/ec2-user/userdata.sh"
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = aws_instance.web.public_ip
-    }
-  }
-}
-resource "null_resource" "run_userdata" {
-  depends_on = [null_resource.wait_for_instance]
+#   provisioner "file" {
+#     source      = "${path.module}/userdata.sh"
+#     destination = "/home/ec2-user/userdata.sh"
+#     connection {
+#       type        = "ssh"
+#       user        = "ec2-user"
+#       private_key = file(local_file.private_key.filename)
+#       host        = aws_instance.web.public_ip
+#     }
+#   }
+# }
+# resource "null_resource" "run_userdata" {
+#   depends_on = [null_resource.wait_for_instance]
 
-  provisioner "remote-exec" {
-    inline = [
-      "sudo chmod +x /home/ec2-user/userdata.sh",
-      "sudo /home/ec2-user/userdata.sh"
-    ]
+#   provisioner "remote-exec" {
+#     inline = [
+#       "sudo chmod +x /home/ec2-user/userdata.sh",
+#       "sudo /home/ec2-user/userdata.sh"
+#     ]
 
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = "${aws_instance.web.public_ip}"
-    }
-  }
-}
+#     connection {
+#       type        = "ssh"
+#       user        = "ec2-user"
+#       private_key = file(local_file.private_key.filename)
+#       host        = "${aws_instance.web.public_ip}"
+#     }
+#   }
+# }
 
 
-resource "null_resource" "provision_fe" {
-  depends_on = [null_resource.wait_for_instance]
+# resource "null_resource" "provision_fe" {
+#   depends_on = [null_resource.wait_for_instance]
 
-  provisioner "file" {
-    source      = "../ibtool-fe"
-    destination = "/home/ec2-user/ibtool-fe"
+#   provisioner "file" {
+#     source      = "../ibtool-fe"
+#     destination = "/home/ec2-user/ibtool-fe"
 
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = aws_instance.web.public_ip
-    }
-  }
-}
+#     connection {
+#       type        = "ssh"
+#       user        = "ec2-user"
+#       private_key = file(local_file.private_key.filename)
+#       host        = aws_instance.web.public_ip
+#     }
+#   }
+# }
 
-resource "null_resource" "provision_be" {
-  depends_on = [null_resource.wait_for_instance]
+# resource "null_resource" "provision_be" {
+#   depends_on = [null_resource.wait_for_instance]
 
-  provisioner "file" {
-    source      = "../ibtool-be"
-    destination = "/home/ec2-user/ibtool-be"
+#   provisioner "file" {
+#     source      = "../ibtool-be"
+#     destination = "/home/ec2-user/ibtool-be"
 
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file(local_file.private_key.filename)
-      host        = aws_instance.web.public_ip
-    }
-  }
-}
+#     connection {
+#       type        = "ssh"
+#       user        = "ec2-user"
+#       private_key = file(local_file.private_key.filename)
+#       host        = aws_instance.web.public_ip
+#     }
+#   }
+# }
 
 #############################################################
 ##############################################################
@@ -269,7 +258,7 @@ locals {
   azs      = slice(data.aws_availability_zones.available.names, 0, 3)
 
   container_name = "ibtool"
-  container_port = 8090
+  container_port = 80
 
   tags = {
     Name       = local.name
@@ -332,184 +321,89 @@ module "ecs_cluster" {
 # Service
 ################################################################################
 
-module "ecs_service" {
-  source = "./modules/service"
+# module "ecs_service" {
+#   source = "./modules/service"
 
-  # Service
-  name        = local.name
-  cluster_arn = module.ecs_cluster.arn
+#   # Service
+#   name        = local.name
+#   cluster_arn = module.ecs_cluster.arn
 
-  # Task Definition
-  requires_compatibilities = ["EC2"]
-  capacity_provider_strategy = {
-    # On-demand instances
-    ex_1 = {
-      capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_1"].name
-      weight            = 1
-      base              = 1
-    }
-  }
+#   # Task Definition
+#   requires_compatibilities = ["EC2"]
+#   capacity_provider_strategy = {
+#     # On-demand instances
+#     ex_1 = {
+#       capacity_provider = module.ecs_cluster.autoscaling_capacity_providers["ex_1"].name
+#       weight            = 1
+#       base              = 1
+#     }
+#   }
 
-  volume = {
-    my-vol = {}
-  }
+#   volume = {
+#     my-vol = {}
+#   }
 
-  # Container definition(s)
-  container_definitions = {
-    (local.container_name) = {
-      image = "public.ecr.aws/ecs-sample-image/ibtool:latest"
-      port_mappings = [
-        {
-          name          = local.container_name
-          containerPort = local.container_port
-          protocol      = "tcp"
-        }
-      ]
+#   # Container definition(s)
+#   container_definitions = {
+#     (local.container_name) = {
+#       image = "public.ecr.aws/ecs-sample-image/ibtool:latest"
+#       port_mappings = [
+#         {
+#           name          = local.container_name
+#           containerPort = local.container_port
+#           protocol      = "tcp"
+#         }
+#       ]
 
-      mount_points = [
-        {
-          sourceVolume  = "my-vol",
-          containerPath = "/var/www/my-vol"
-        }
-      ]
+#       mount_points = [
+#         {
+#           sourceVolume  = "my-vol",
+#           containerPath = "/var/www/my-vol"
+#         }
+#       ]
 
-      entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
+#       entry_point = ["/usr/sbin/apache2", "-D", "FOREGROUND"]
 
-      # Example image used requires access to write to root filesystem
-      readonly_root_filesystem = false
+#       # Example image used requires access to write to root filesystem
+#       readonly_root_filesystem = false
 
-      enable_cloudwatch_logging              = true
-      create_cloudwatch_log_group            = true
-      cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
-      cloudwatch_log_group_retention_in_days = 7
+#       enable_cloudwatch_logging              = true
+#       create_cloudwatch_log_group            = true
+#       cloudwatch_log_group_name              = "/aws/ecs/${local.name}/${local.container_name}"
+#       cloudwatch_log_group_retention_in_days = 7
 
-      log_configuration = {
-        logDriver = "awslogs"
-      }
-    }
-  }
+#       log_configuration = {
+#         logDriver = "awslogs"
+#       }
+#     }
+#   }
 
-  load_balancer = {
-    service = {
-      target_group_arn = module.alb.target_groups["ex_ecs"].arn
-      container_name   = local.container_name
-      container_port   = local.container_port
-    }
-  }
+#   load_balancer = {
+#     service = {
+#       target_group_arn = module.alb.target_groups["ex_ecs"].arn
+#       container_name   = local.container_name
+#       container_port   = local.container_port
+#     }
+#   }
 
-  subnet_ids = module.vpc.private_subnets
-  security_group_rules = {
-    alb_http_ingress = {
-      type                     = "ingress"
-      from_port                = local.container_port
-      to_port                  = local.container_port
-      protocol                 = "tcp"
-      description              = "Service port"
-      source_security_group_id = module.alb.security_group_id
-    }
-  }
+#   subnet_ids = module.vpc.private_subnets
+#   security_group_rules = {
+#     alb_http_ingress = {
+#       type                     = "ingress"
+#       from_port                = local.container_port
+#       to_port                  = local.container_port
+#       protocol                 = "tcp"
+#       description              = "Service port"
+#       source_security_group_id = module.alb.security_group_id
+#     }
+#   }
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
 ################################################################################
 # Supporting Resources
 ################################################################################
-
-# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html#ecs-optimized-ami-linux
-data "aws_ssm_parameter" "ecs_optimized_ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/recommended"
-}
-
-module "alb" {
-  source  = "terraform-aws-modules/alb/aws"
-  version = "~> 9.0"
-
-  name = local.name
-
-  load_balancer_type = "application"
-
-  vpc_id  = module.vpc.vpc_id
-  subnets = module.vpc.public_subnets
-
-  # For example only
-  enable_deletion_protection = false
-
-  # Security Group
-  security_group_ingress_rules = {
-    all_http = {
-      from_port   = 80
-      to_port     = 80
-      ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-    all_https = {
-      from_port   = 443
-      to_port     = 443
-      ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-    all_http2 = {
-      from_port   = 8090
-      to_port     = 8090
-      ip_protocol = "tcp"
-      cidr_ipv4   = "0.0.0.0/0"
-    }
-  }
-  security_group_egress_rules = {
-    all = {
-      ip_protocol = "-1"
-      cidr_ipv4   = module.vpc.vpc_cidr_block
-    }
-  }
-
-  listeners = {
-    ex_http = {
-      port     = 80
-      protocol = "HTTP"
-
-      forward = {
-        target_group_key = "ex_ecs"
-      }
-    }
-    ex_ibtool = {
-      port     = 8090
-      protocol = "HTTP"
-
-      forward = {
-        target_group_key = "ex_ecs"
-      }
-    }
-  }
-
-  target_groups = {
-    ex_ecs = {
-      backend_protocol                  = "HTTP"
-      backend_port                      = local.container_port
-      target_type                       = "ip"
-      deregistration_delay              = 5
-      load_balancing_cross_zone_enabled = true
-
-      health_check = {
-        enabled             = true
-        healthy_threshold   = 5
-        interval            = 30
-        matcher             = "200"
-        path                = "/"
-        port                = "traffic-port"
-        protocol            = "HTTP"
-        timeout             = 5
-        unhealthy_threshold = 2
-      }
-
-      # Theres nothing to attach here in this definition. Instead,
-      # ECS will attach the IPs of the tasks to this target group
-      create_attachment = false
-    }
-  }
-
-  tags = local.tags
-}
 
 module "autoscaling" {
   source  = "terraform-aws-modules/autoscaling/aws"
@@ -570,7 +464,7 @@ module "autoscaling" {
 
   name = "${local.name}-${each.key}"
 
-  image_id      = jsondecode(data.aws_ssm_parameter.ecs_optimized_ami.value)["image_id"]
+  image_id      = data.aws_ssm_parameter.ecs_optimized_ami.value
   instance_type = each.value.instance_type
 
   security_groups                 = [module.autoscaling_sg.security_group_id]
@@ -697,83 +591,6 @@ resource "aws_iam_policy_attachment" "ecs_task_execution_role_policy" {
   name       = "ecs_task_exec_policy"
 }
 
-resource "aws_ecs_task_definition" "mongo" {
-  family                   = "mongo-task"
-  network_mode             = "bridge"
-  requires_compatibilities = ["EC2"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([{
-    name      = "mongo"
-    image     = "mongo"
-    essential = true
-    memory    = 512
-    cpu       = 256
-    portMappings = [{
-      containerPort = 27017
-      hostPort      = 27017
-    }]
-    environment = [
-      {
-        name  = "MONGO_INITDB_ROOT_USERNAME"
-        value = "ibtool"
-      },
-      {
-        name  = "MONGO_INITDB_ROOT_PASSWORD"
-        value = "iBeeTim!"
-      },
-      {
-        name  = "MONGO_INITDB_DATABASE"
-        value = "ibtool"
-      }
-    ]
-    mountPoints = [{
-      sourceVolume = "db"
-      containerPath = "/data/db"
-    }]
-  }])
-  volume {
-    name      = "db"
-    host_path = "/root/ibtool/db"
-  }
-}
-
-resource "aws_ecs_task_definition" "ibtoolbe" {
-  family                   = "ibtoolbe-task"
-  network_mode             = "bridge"
-  requires_compatibilities = ["EC2"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([{
-    name      = "ibtoolbe"
-    image     = "${aws_ecr_repository.ibtool.repository_url}:latest"
-    essential = true
-    memory    = 512
-    cpu       = 256
-    portMappings = [{
-      containerPort = 8080
-      hostPort      = 8080
-    }]
-  }])
-}
-
-resource "aws_ecs_task_definition" "ibtool" {
-  family                   = "ibtool-task"
-  network_mode             = "bridge"
-  requires_compatibilities = ["EC2"]
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
-  container_definitions = jsonencode([{
-    name      = "ibtool"
-    image     = "${aws_ecr_repository.ibtool.repository_url}:latest"
-    essential = true
-    memory    = 512
-    cpu       = 256
-    portMappings = [{
-      containerPort = 80
-      hostPort      = 8090
-    }]
-  }])
-}
-
-
 resource "aws_ecs_service" "mongo" {
   name            = "mongo-service"
   cluster         = module.ecs_cluster.id
@@ -799,10 +616,22 @@ resource "aws_ecs_service" "ibtool" {
   task_definition = aws_ecs_task_definition.ibtool.arn
   desired_count   = 1
   launch_type     = "EC2"
+
+  load_balancer {
+    target_group_arn = module.alb.target_groups["ex_ecs"].arn
+    container_name   = "ibtool"
+    container_port   = 80
+  }
+
   depends_on = [
     aws_ecs_service.ibtoolbe
   ]
 }
+
+
+
+
+
 
 
 
